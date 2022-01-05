@@ -44,7 +44,6 @@ def handle_event(event):
     keys = pygame.key.get_pressed()
 
     if event.type == pygame.QUIT:
-
         running = False
     #colour and size change
     if event.type == pygame.MOUSEBUTTONDOWN:
