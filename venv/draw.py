@@ -13,7 +13,7 @@ pygame.init()
 pygame.font.init()
 screen = pygame.display.set_mode((1920, 900))
 def openfile():
-    filepath = filedialog.askopenfilename()
+    filepath = filedialog.SaveFileDialog
 
 
 lasttime = time.time()
@@ -113,10 +113,11 @@ def handle_event(event):
     # saving
 
     if keys[pygame.K_s]:
+        filepath = filedialog.asksaveasfilename()
         save_obj = {"circles": []}
         for circle in circles:
             save_obj["circles"].append({"colour": circle.colour, "position": circle.position, "size": circle.size})
-        with open("save_file.jpf", "w") as f:
+        with open(filepath, "w") as f:
             f.write(json.dumps(save_obj))
 
     # loading
