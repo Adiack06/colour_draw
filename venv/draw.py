@@ -6,7 +6,7 @@ import json
 
 
 pygame.init()
-screen = pygame.display.set_mode((1920, 900))
+screen = pygame.display.set_mode((900, 900))
 
 lasttime = time.time()
 size = 10
@@ -102,15 +102,25 @@ def handle_event(event):
         save_obj = {"circles": []}
         for circle in circles:
             save_obj["circles"].append({"colour": circle.colour, "position": circle.position, "size": circle.size})
-        with open("save_file", "w") as f:
+        with open("save_file.jpf", "w") as f:
             f.write(json.dumps(save_obj))
 
     # loading
     if keys[pygame.K_l]:
-        with open("save_file", "r") as f:
+        with open("save_file.jpf", "r") as f:
             circles = []
             for data in json.loads(f.read())["circles"]:
                 circles.append(Circle(data["colour"], data["position"], data["size"]))
+
+    #optomise
+    if keys[pygame.K_c]:
+        print(len(circles))
+
+    #rest
+    if keys[pygame.K_DELETE]:
+        circles.clear()
+
+
 
 while running:
     deltatime = time.time() - lasttime
@@ -131,6 +141,9 @@ while running:
     pygame.draw.circle(screen, (0, 0, 0), (70, 70), 70)
     pygame.draw.circle(screen, (255, 255, 255), (70, 70), 65)
     pygame.draw.circle(screen, (red, green, blue), (70,70), 60)
+
+
+
 
 
 
