@@ -1,13 +1,20 @@
 import random
-
 import pygame
 import time
 import json
 
 
+#file exporer
+from tkinter import filedialog
+
+
+
 pygame.init()
 pygame.font.init()
-screen = pygame.display.set_mode((900, 900))
+screen = pygame.display.set_mode((1920, 900))
+def openfile():
+    filepath = filedialog.askopenfilename()
+
 
 lasttime = time.time()
 size = 10
@@ -23,6 +30,7 @@ words = []
 save_file = []
 save_file_load = []
 word = 1
+filepath = 1
 
 class Circle:
     def __init__(self, colour, position, size):
@@ -44,6 +52,7 @@ def handle_event(event):
     global save_file_load
     global save_file
     global word
+    global file
     keys = pygame.key.get_pressed()
 
     if event.type == pygame.QUIT:
@@ -112,7 +121,8 @@ def handle_event(event):
 
     # loading
     if keys[pygame.K_l]:
-        with open("save_file.jpf", "r") as f:
+        filepath = filedialog.askopenfilename()
+        with open(filepath, "r") as f:
             circles = []
             for data in json.loads(f.read())["circles"]:
                 circles.append(Circle(data["colour"], data["position"], data["size"]))
@@ -130,7 +140,7 @@ def handle_event(event):
 while running:
     deltatime = time.time() - lasttime
     lasttime = time.time()
-    screen.fill((0,0,0))
+    screen.fill((255,255,255))
     for event in pygame.event.get():
         handle_event(event)
 
