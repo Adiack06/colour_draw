@@ -6,6 +6,7 @@ import json
 
 
 pygame.init()
+pygame.font.init()
 screen = pygame.display.set_mode((900, 900))
 
 lasttime = time.time()
@@ -21,6 +22,7 @@ length_circles = 0
 words = []
 save_file = []
 save_file_load = []
+word = 1
 
 class Circle:
     def __init__(self, colour, position, size):
@@ -41,6 +43,7 @@ def handle_event(event):
     global words
     global save_file_load
     global save_file
+    global word
     keys = pygame.key.get_pressed()
 
     if event.type == pygame.QUIT:
@@ -96,6 +99,8 @@ def handle_event(event):
     with open("words.txt") as words_file:
         words = words_file.readlines()
 
+
+
     # saving
 
     if keys[pygame.K_s]:
@@ -142,8 +147,10 @@ while running:
     pygame.draw.circle(screen, (255, 255, 255), (70, 70), 65)
     pygame.draw.circle(screen, (red, green, blue), (70,70), 60)
 
+    myfont = pygame.font.SysFont('Comic Sans MS', 30)
 
-
+    textsurface = myfont.render(str(word), False, (0, 0, 0))
+    screen.blit(textsurface, (10, 200))
 
 
 
