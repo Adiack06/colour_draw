@@ -2,7 +2,8 @@ import random
 import pygame
 import time
 import json
-
+import socket
+import threading
 
 #file exporer
 from tkinter import filedialog
@@ -37,6 +38,12 @@ class Circle:
         self.colour = colour
         self.position = position
         self.size = size
+
+    def toJson(self):
+        return {"colour": self.colour, "position": self.position, "size": self.size}
+
+    def fromJson(data):
+        return Circle(data["colour"], data["position"], data["size"])
 
 
 def handle_event(event):
@@ -116,7 +123,7 @@ def handle_event(event):
         filepath = filedialog.asksaveasfilename()
         save_obj = {"circles": []}
         for circle in circles:
-            save_obj["circles"].append({"colour": circle.colour, "position": circle.position, "size": circle.size})
+            save_obj["circles"].append(circle.toJson())
         with open(filepath, "w") as f:
             f.write(json.dumps(save_obj))
 
@@ -126,7 +133,7 @@ def handle_event(event):
         with open(filepath, "r") as f:
             circles = []
             for data in json.loads(f.read())["circles"]:
-                circles.append(Circle(data["colour"], data["position"], data["size"]))
+                circles.append(Circle.fromJson(data))
 
     #optomise
     if keys[pygame.K_c]:
@@ -137,31 +144,47 @@ def handle_event(event):
         circles.clear()
 
 
+def main(s):
+    global running
+    global size
+    global red
+    global green
+    global blue
+    global save1
+    global circles
+    global length_circles
+    global words
+    global save_file_load
+    global save_file
+    global word
+    global file
+    global lasttime
+    while running:
+        deltatime = time.time() - lasttime
+        lasttime = time.time()
+        screen.fill((255,255,255))
+        for event in pygame.event.get():
+            handle_event(event)
 
-while running:
-    deltatime = time.time() - lasttime
-    lasttime = time.time()
-    screen.fill((255,255,255))
-    for event in pygame.event.get():
-        handle_event(event)
+        if pygame.mouse.get_pressed(3)[0]:
+            newcircle = Circle((red, green, blue), pygame.mouse.get_pos(), size)
+            circles.append(newcircle)
+            s.sendall((json.dumps(newcircle.toJson()) + "\n").encode("utf-8"))
 
-    if pygame.mouse.get_pressed(3)[0]:
-        circles.append(Circle((red, green, blue), pygame.mouse.get_pos(), size))
+        for circle in circles:
+            pygame.draw.circle(screen, circle.colour, circle.position, circle.size)
 
-    for circle in circles:
-        pygame.draw.circle(screen, circle.colour, circle.position, circle.size)
+        #curser
+        pygame.draw.circle(screen, (red, green, blue), pygame.mouse.get_pos(), size)
+        #colour icon
+        pygame.draw.circle(screen, (0, 0, 0), (70, 70), 70)
+        pygame.draw.circle(screen, (255, 255, 255), (70, 70), 65)
+        pygame.draw.circle(screen, (red, green, blue), (70,70), 60)
 
-    #curser
-    pygame.draw.circle(screen, (red, green, blue), pygame.mouse.get_pos(), size)
-    #colour icon
-    pygame.draw.circle(screen, (0, 0, 0), (70, 70), 70)
-    pygame.draw.circle(screen, (255, 255, 255), (70, 70), 65)
-    pygame.draw.circle(screen, (red, green, blue), (70,70), 60)
+        myfont = pygame.font.SysFont('Comic Sans MS', 30)
 
-    myfont = pygame.font.SysFont('Comic Sans MS', 30)
-
-    textsurface = myfont.render(str(word), False, (0, 0, 0))
-    screen.blit(textsurface, (10, 200))
+        textsurface = myfont.render(str(word), False, (0, 0, 0))
+        screen.blit(textsurface, (10, 200))
 
 
 
@@ -169,7 +192,23 @@ while running:
 
 
 
-    pygame.display.flip()
+        pygame.display.flip()
 
-#time.deltatime
+def network(s):
+    global circles
+    while True:
+        buffer = ""
+        while not "\n" in buffer:
+            buffer += s.recv(1024).decode("utf-8")
+        bufsplit = buffer,split("\n")
+        data, buffer = bufsplit[0], "\n".join(bufsplit[1:])
+        json_data = json.loads(data)
+        circles.append(Circle.fromJson(json_data))
+
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.connect(("127.0.0.1", 6996))
+    t = threading.Thread(target=network,args=(s,))
+    t.start()
+    main(s)
+    t.join()
 

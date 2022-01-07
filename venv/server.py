@@ -1,0 +1,30 @@
+import socket, threading
+
+connections = []
+threads = []
+
+
+def handle_client(conn):
+    global connections
+    with conn:
+        print(f"Connected to {addr}")
+        while True:
+            data = conn.recv(1024)
+            if not data: break
+            for c in connections:
+                if c is not conn:
+                    c.sendall(data)
+    connections.remove(conn)
+HOST = ''
+PORT = 6996
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.bind((HOST, PORT))
+    s.listen(10)
+    while True:
+        conn, addr = s.accept()
+        t = threading.Thread(target=handle_client, args=(conn,))
+        t.start()
+        threads.append(t)
+
+for t in threads:
+    t.join()
