@@ -12,7 +12,7 @@ from tkinter import filedialog
 
 pygame.init()
 pygame.font.init()
-screen = pygame.display.set_mode((1920, 900))
+screen = pygame.display.set_mode((1000, 900))
 def openfile():
     filepath = filedialog.SaveFileDialog
 
