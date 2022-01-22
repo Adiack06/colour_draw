@@ -198,16 +198,17 @@ def network(s):
     global circles
     while True:
         buffer = ""
-        while not "\n" in buffer:
-            buffer += s.recv(1024).decode("utf-8")
-        bufsplit = buffer,split("\n")
-        data, buffer = bufsplit[0], "\n".join(bufsplit[1:])
-        json_data = json.loads(data)
+        while not "\n" in buffer: #while there isnt a new line
+            buffer += s.recv(1024).decode("utf-8") #ads each kb recived decoded with etf-8 to buffer
+        bufsplit = buffer.split("\n") #splits it into new lines in a list
+        data = bufsplit[0] #takes the first one on that list
+        buffer = "\n".join(bufsplit[1:]) + "\n" #moves the second item to first and then third to seconds ect
+        json_data = json.loads(data) #turns data string inot json
         circles.append(Circle.fromJson(json_data))
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect(("127.0.0.1", 6996))
-    t = threading.Thread(target=network,args=(s,))
+    t = threading.Thread(target=network,args=(s,)) #creates thread that runs network
     t.start()
     main(s)
     t.join()
