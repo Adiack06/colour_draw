@@ -45,6 +45,20 @@ class Circle:
     def fromJson(data):
         return Circle(data["colour"], data["position"], data["size"])
 
+class netcommand:
+    def __init__(self,command, colour, position, size):
+        self.colour = colour
+        self.position = position
+        self.size = size
+        self.command = ""
+
+    def toJson(self):
+        return {"command": self.command,"colour": self.colour, "position": self.position, "size": self.size}
+
+    def fromJson(data):
+        return Circle(data["command"],data["colour"], data["position"], data["size"])
+
+
 
 def handle_event(event):
     global running
